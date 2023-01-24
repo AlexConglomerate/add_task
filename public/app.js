@@ -1,8 +1,10 @@
-// import {createElement1} from './createElement'
-// const {createElement1} = require('./createElement')
-
 const getParams = (event) => {
-    const text = event.target.parentNode.parentNode.childNodes[0].textContent.trim()
+    // Определяем, где текст. Если его нет в input, берём из li
+    const textElem = event.target.parentNode.parentNode.childNodes[0]
+    const textFromInput = textElem.value
+    const textFromLi = textElem.textContent.trim()
+    const text = textFromInput ? textFromInput : textFromLi
+
     const id = event.target.dataset.id
     const elem = event.target.parentNode.parentNode
     return {text, id, elem}
@@ -44,13 +46,13 @@ const createElement = (text, id, {input, button_1, button_2}) => {
     const div = document.createElement('div');
 
     const saveBtn = document.createElement('button');
-    saveBtn.className = `btn btn-${button_1.color}`
+    saveBtn.className = ` mx-1 btn btn-${button_1.color}`
     saveBtn.setAttribute("data-type", button_1.type);
     saveBtn.setAttribute("data-id", id);
     saveBtn.innerHTML = button_1.name;
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.className = `btn btn-${button_2.color}`
+    cancelBtn.className = ` mx-1 btn btn-${button_2.color}`
     cancelBtn.setAttribute("data-type", button_2.type);
     cancelBtn.setAttribute("data-id", id);
     cancelBtn.innerHTML = button_2.name;
@@ -60,49 +62,6 @@ const createElement = (text, id, {input, button_1, button_2}) => {
 
     return li
 }
-
-
-document.addEventListener('click', event => {
-    // обработка нажатия на кнопку "Удалить"
-    if (event.target.dataset.type === 'remove') {
-        const id = event.target.dataset.id
-        remove(id).then(() => {
-            event.target.closest('li').remove()
-        })
-    }
-
-    // обработка нажатия на кнопку "Изменить"
-    if (event.target.dataset.type === 'update') {
-        const element = event.target.parentNode.parentNode.childNodes[0]
-        const text = element.textContent.trim()
-        const newText = prompt('Enter a new name', text)
-        const id = event.target.dataset.id
-        if (newText !== null && newText !== text) {
-            edit(id, newText).then(() => {
-                element.textContent = newText
-            })
-        }
-    }
-
-    // обработка нажатия на кнопку "Сохранить"
-    if (event.target.dataset.type === 'save') {
-        makeChange(event, 'default')
-
-    }
-
-    // обработка нажатия на кнопку "Отменить"
-    if (event.target.dataset.type === 'cancel') {
-        makeChange(event, 'default')
-    }
-})
-
-document.querySelectorAll('.btn-success').addEventListener('click', function () {
-    // Получаем родительский элемент li
-    let li = this.parentNode.parentNode;
-    // Удаляем содержимое элемента li
-    li.innerHTML = "";
-    console.log(`Удаляем содержимое элемента li`)
-});
 
 async function remove(id) {
     await fetch(`/${id}`, {method: 'DELETE'})
@@ -118,3 +77,33 @@ async function edit(id, text) {
     await fetch(`/${id}`, options)
 }
 
+
+document.addEventListener('click', event => {
+    const type = event.target.dataset.type
+
+    // обработка нажатия на кнопку "Удалить"
+    if (type === 'remove') {
+        const id = event.target.dataset.id
+        remove(id).then(() => {
+            event.target.closest('li').remove()
+        })
+    }
+
+    // обработка нажатия на кнопку "Изменить"
+    if (type === 'update') {
+        makeChange(event, 'edit')
+    }
+
+    // обработка нажатия на кнопку "Сохранить"
+    if (type === 'save') {
+        const {text, id} = getParams(event)
+        edit(id, text).then(() => {
+            makeChange(event, 'default')
+        })
+    }
+
+    // обработка нажатия на кнопку "Отменить"
+    if (type === 'cancel') {
+        makeChange(event, 'default')
+    }
+})
