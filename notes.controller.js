@@ -51,4 +51,4 @@ async function editNote(id, text) {
     await saveNotes(notes)
 }
 
-module.exports = {    addNote, getNotes, removeNote, editNote}
+module.exports = {printNotes, addNote, getNotes, removeNote, editNote}
