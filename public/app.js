@@ -10,7 +10,6 @@ const getParams = (event) => {
     return {text, id, elem}
 }
 
-
 const configElement = {
     default: {
         input: false,
@@ -29,7 +28,6 @@ const makeChange = (event, version) => {
     const li = createElement(text, id, configElement[version])
     elem.replaceWith(li)
 }
-
 
 const createElement = (text, id, {input, button_1, button_2}) => {
     const li = document.createElement('li');
@@ -73,10 +71,8 @@ async function edit(id, text) {
         body: JSON.stringify({text: text}),
         headers: {'Content-Type': 'application/json'}
     }
-
     await fetch(`/${id}`, options)
 }
-
 
 document.addEventListener('click', event => {
     const type = event.target.dataset.type
